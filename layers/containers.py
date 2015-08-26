@@ -170,7 +170,79 @@ class Graph(Layer):
         if name in self.namespace:
             raise Exception('Duplicate node identifier:'+name)
         if input:
-            if input notl
+            if input not not in self.namespace:
+                raise Exception('Unkown node/input identifier' + input)
+            if input in self.nodes:
+                layer.set_previous(self.nodes[input])
+            elif input in self.inputs:
+                layer.set_previous(self.inputs[input])
+        if inputs:
+            to_merge = []
+            for n in inputs:
+                if n in self.nodes:
+                    to_merge.append(self.nodes[n])
+                elif n in self.inputs:
+                    to_merge.append(self.inputs[n])
+                else:
+                    raise Exception('UnKnown identifier: '+n)
+            merge = Merge(to_merge, mode=merge_mode)
+            layer.set_previous(merge)
+        self.namespace.add(name)
+        self.nodes[name] = layer
+        self.node_config.append(l{
+            "name": name,
+            "input": input,
+            "inputs": inputs,
+            "merge_mode": merge_mode
+        })
+        layer.init_updates()
+        params, regularizers, constraints, updates = layer.get_params()
+        self.params += params
+        self.regularizers += regularizers
+        self.constraints += constraints
+        self.updates += updates
+
+        if create_output:
+            self.add_output(name, input=name)
+
+    def add_output(self, name, input=None, inputs=[], merge_mode='concat'):
+        if name in self.output_order:
+            raise Exception('Duplicate output identifier :' + name)
+        if input:
+            if input not in self.namespace:
+                raise Exception('UnKnown node/input identifier: '+ input)
+            if input in self.nodes:
+                self.outputs[name] = self.nodes[input]
+            elif input in self.inputs:
+                self.outputs[name] = self.inputs[input]
+        if inputs:
+            to_merge = []
+            for n in inputs:
+                if n not in self.nodes:
+                    raise Exception('Unknown identifier :' + n)
+                to_merge.append(self.nodes[n])
+                merge = Merge(to_merge, mode=merge_mode)
+                self.outputs[name] = merge
+        self.output_order.append(name)
+        self.output_config.append({
+            "name": name,
+            'input': input,
+            "inputs": inputs,
+            'merge_mode': merge_mode
+        })
+
+    def get_config(self):
+        return {
+            "name": self.__class__.__name__,
+            "input_config": self.input_config,
+            "node_config": self.node_config,
+            "output_config": self.output_config,
+            "input_order": self.input_order,
+            "output_order": self.output_order,
+            "nodes": dict([(c["name"], self.nodes[c["name"]].get_config()) for c in self.node_config])
+        }
+
+    
 
 
     

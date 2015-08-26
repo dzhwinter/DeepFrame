@@ -266,6 +266,8 @@ class Sequential(Model, containers.Sequntial):
         - set_weights
     '''
     def compile(self, optimizer, loss, class_mode="categorical", theano_mode=None):
+        self.optimizer = optimizer.get(optimizer)
+        self.loss = 
 
 
 
