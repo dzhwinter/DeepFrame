@@ -11,21 +11,27 @@ class A(object):
     @property
     def input(self):
         return self.get_data()
+    
+    def get_config(self):
+        return self.__class__.__name__
 
-class B(A):
-    def __init__(self):
-        super(self,A).__init__()
-        self.data = 2000
+# class B(A):
+#     def __init__(self):
+#         super(self, A).__init__()
+#         self.data = 2000
 
-    def test(self, fun):
-        def printB(self):
-            print "print from inside B"
+#     def test(self, fun):
+#         def printB(self):
+#             print "print from inside B"
 
-    def myprint(self):
-        print "this print from B"
+#     def get_config(self):
+#         return self.__class__.__name__
+
+#     def myprint(self):
+#         print "this print from B"
     # 
 a = A()
 print a
-b = B()
-b.test()
+# b = B()
+# b.test()
 

@@ -7,6 +7,14 @@ import warnings, time, copy, pprint
 from six.moves import range
 import six
 
+from . import optimizers
+from . import objectives
+from . import constraints
+from . import regu
+from . import callbacks as cbks
+from .utils.generic_utils import printv, Progbar
+from .layers import containers
+
 
 def standardize_y(y):
     if not hasattr(y, 'shape'):
@@ -267,7 +275,154 @@ class Sequential(Model, containers.Sequntial):
     '''
     def compile(self, optimizer, loss, class_mode="categorical", theano_mode=None):
         self.optimizer = optimizer.get(optimizer)
-        self.loss = 
+        
+        self.loss = objectives.get(loss)
+        weighted_loss = weighted_objective(objectives.get(loss))
+
+        self.X_train = self.get_input(train=True)
+        self.X_test = self.get_input(train=False)
+
+        self.y_train = self.get_input(train=True)
+        self.y_test = self.get_input(train=False)
+
+
+        self.y = T.zeros_like(self.y_train)
+
+        self.weights = T.ones_like(self.y_train)
+
+        if hasattr(self.layers[-1], "get_ouput_mask"):
+            mask = self.layers[-1].get_output_mask()
+        else:
+            mask = None
+
+        train_loss = weighted_loss(self.y, self.y_train, self.weights, mask)
+        test_loss = weighted_loss(self.y, self.y_test, self.weights, mask)
+
+        train_loss.name = 'train_loss'
+        test_loss.name = 'test_loss'
+        self.y.name = 'y'
+
+        if class_mode == 'categorical':
+            train_accuracy = T.mean(T.eq(T.argmax(self.y, axis=-1), T.argmax(self.y_train, axis=-1)))
+            test_accuracy = T.mean(T.eq(T.argsort(self.y, axis=-1), T.argmax(self.y_test, axis=-1)))
+
+        elif class_mode == "binary":
+            train_accuracy = T.mean(T.eq(self.y, T.round(self.y_train)))
+            test_accuracy = T.mean(T.eq(self.y, T.round(self.y_test)))
+        else:
+            raise Exception("Invalid class mode:" + str(class_mode))
+        self.class_mode = class_mode
+        self.theano_mode = theano_mode
+
+        for r in self.regularizers:
+            train_loss = r(train_loss)
+        updates = self.optimizer.get_updates(self.params, self.constraints, train_loss)
+        updates += self.updates
+
+        if type(self.X_train) == list:
+            train_ins = self.X_train + [self.y, self.weights]
+            test_ins = self.X_test + [self.y, self.weights]
+            predict_ins = self.X_test
+
+        else:
+            train_ins = [self.X_train, self.y, self.weights]
+            test_ins = [self.X_test, self.y, self.weights]
+            predict_ins = self.X_test
+
+        self._train = theano.function(train_ins, train_loss, updates=updates,
+                                      allow_input_downcast=True, mode=theano_mode)
+        self._train_with_acc = theano.function(train_ins, [train_loss, train_accuracy], updates=updates,
+                                               allow_input_downcast = True, mode= theano_mode)
+        self._predict= theano.function(predict_ins, self.y_test,
+                                       allow_input_downcast=True, mode=theano_mode)
+        self._test = theano.function(test_ins, test_loss, updates=updates,
+                                      allow_input_downcast=True, mode=theano_mode)
+        self._test_with_acc = theano.function(test_ins, [test_loss, test_accuracy], updates=updates,
+                                               allow_input_downcast = True, mode= theano_mode)
+
+    def train_on_batch(self, X, y, accuracy=False, clss_weight=None, sample_weight=None):
+        X = standardize_X(x)
+        y = standardize_y(y)
+        sample_weight = standardize_weights(y, class_weight=class_weight,sample_weight=sample_weight)
+
+        int = X + [y, sample_weight]
+        if accuracy:
+            return self._train_with_acc(*ins)
+        else:
+            return self._train(*ins)
+
+    def test_on_batch(self, X, y, accuracy=False, sample_weight=None):
+        X = standardize_X(x)
+        y = standardize_y(y)
+        sample_weight = standardize_weights(y, class_weight=class_weight,sample_weight=sample_weight)
+
+        int = X + [y, sample_weight]
+        if accuracy:
+            return self._test_with_acc(*ins)
+        else:
+            return self._test(*ins)
+    def predict_on_batch():
+        NotImplemented
+
+    def fit(self, X, y, batch_size=128, nb_epoch=100, verbose=1, callbacks=[],
+            validation_split=0, validation_data=None, shuffle=True, show_accuracy=False,
+            class_weight=None, sample_weight=None):
+        X = standardize_X(x)
+        y = standardize_y(y)
+        sample_weight = standardize_weights(y, class_weight=class_weight,sample_weight=sample_weight)
+
+        val_f = None
+        val_ins = None
+        if validation_data or validation_split:
+            if show_accuracy:
+                val_f = self._test_with_acc
+            else:
+                val_f = self._test
+        if validation_data:
+            try:
+                X_val, y_val = validation_data
+            except:
+                raise Exception("Invalid format for validation data")
+            X_val = standardize_X(X_val)
+            y_val = standardize_y(y_val)
+            val_ins = X_val + [y_val, np.ones(y_val.shape[:-1] + (1,))]
+
+        if show_accuracy:
+            f = self._train_with_acc
+            out_labels = ['loss', 'acc']
+        else:
+            f = self._train
+            out_labels = ['loss']
+
+        ins = X + [y, sample_weight]
+        metircs = ['loss', 'acc', 'val_loss', 'val_acc']
+        return self._fit(f, ins, out_labels=out_labels, batch_size=batch_size, nb_epoch=nb_epoch,
+                         verbose=verbose, callbacks=callbacks,
+                         validation_split=validation_split, val_f=val_f, val_ins=val_ins,
+                         shuffle=shuffle, metircs=metircs)
+
+    def evaluate(self, X, y, batch_szie=128, show_accuracy=False, verbose=1, sample_weight=None):
+        X = standardize_X(X)
+        y = standardize_y(y)
+        sample_weight = standardize_weights(y, sample_weight=sample_weight)
+
+        ins = X + {y, sample_weight}
+        if  show_accuracy:
+            f = self._test_with_acc
+        else:
+            f = self._test
+        outs = self._test_loop(f, ins, batch_size, verbose)
+        if show_accuracy:
+            returnl outs
+        else:
+            return outs[0]
+
+
+        
+    
+
+
+                                    
 
 
 
