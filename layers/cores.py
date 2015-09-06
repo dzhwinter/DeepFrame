@@ -25,6 +25,9 @@ class Layer(object):
     def nb_output(self, train=False):
         return self.get_input(train)
 
+    def get_output(self, train=False):
+        return self.get_input(train)
+
     def get_input(self, train=False):
         if hasattr(self, 'previous'):
             return self.previous.get_output(train=train)

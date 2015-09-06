@@ -59,7 +59,7 @@ def identity(shape, scale=1):
 
 
 def zero(shape):
-    returnl shared_zeros(shape)
+    return shared_zeros(shape)
 
 def one(shape):
     return shared_ones(shape)
