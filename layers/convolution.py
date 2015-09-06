@@ -185,7 +185,7 @@ class Convolution2D(Layer):
             "init": self.init.__name__,
             "activation": self.activation.__name__,
             "border_mode": self.border_mode,
-            "subsample_length": self.subsample_length,
+            "subsample": self.subsample,
             "W_regularizer": self.W_regularizer.get_config() if self.W_regularizer else None,
             "b_regularizer": self.b_regularizer.get_config() if self.b_regularizer else None,
             "activity_regularizer": self.activity_regularizer.get_config() if self.activity_regularizer else None,
@@ -218,17 +218,47 @@ class MaxPooling1D(Layer):
     def get_config(self):
         return {
             "name": self.__class__.__name__,
-            "input_dim": self.input_dim,
-            "nb_filter": self.nb_filter,
-            "filter_length": self.filter_length,
-            "init": self.init.__name__,
-            "activation": self.activation.__name__,
-            "border_mode": self.border_mode,
-            "subsample_length": self.subsample_length,
-            "W_regularizer": self.W_regularizer.get_config() if self.W_regularizer else None,
-            "b_regularizer": self.b_regularizer.get_config() if self.b_regularizer else None,
-            "activity_regularizer": self.activity_regularizer.get_config() if self.activity_regularizer else None,
-            "W_constraint": self.W_constraint.get_config() if self.W_constraint else None,
-            "b_constraint": self.b_constraint.get_config() if self.b_constraint else None
+            "pool_length", self.pool_length,
+            "stride": self.stride,
+            "ignore_border": self.ignore_border
         }
+
+class MaxPooling2D(Layer):
+    def __init__(self, pool_length=2, stride=None, ignore_border=True):
+        super(MaxPooling2D, self).__init__()
+        self.pool_length = pool_length
+        self.stride = stride
+        if self.stride :
+            self.st = (self.stride,1)
+        else:
+            self.st = None
+
+        self.input = T.tensor3()
+        self.poolsize = (pool_length, 1)
+        self.stride = stride
+        if self.stride:
+            self.st = (self.stride, 1)
+        else:
+            self.st = None
+
+        self.input = T.tensor3()
+        self.poolsize = (pool_length, 1)
+        self.ignore_border = ignore_border
+
+    def get_output(self, train):
+        X = self.get_input(train)
+        X = T.reshape(X, (X.shape[0], X.shape[1], X.shape[2], 1)).dimshuffle(0,2,1,3)
+        output = T.signal.downsample(0,2,1,3)
+        return T.reshape(output, (output.shape[0], output.shape[1], output.shape[2]))
+
+    def get_config(self):
+        return {
+            "name": self.__class__.__name__,
+            "stride": self.stride,
+            "pool_length", self.pool_length,
+            "ignore_border": self.ignore_border
+        }
+    
+
+    
 
