@@ -259,6 +259,63 @@ class MaxPooling2D(Layer):
             "ignore_border": self.ignore_border
         }
     
+class UpSample1D(Layer):
+    def __init__(self, length=2):
+        super(UpSample1D, self).__init__()
+        self.length = length
+        self.input = T.tensor3()
+
+    def get_output(self, train):
+        X = self.get_input(train)
+        output = theano.tensor.extra_ops.repeat(X, self.length, axis=1)
+        return output
+
+    def get_config(self):
+        return {
+            "name": self.__class__.__name__,
+            "length": self.length
+        }
+
+class UpSample2D(Layer):
+    def __init__(self, size=(2,2)):
+        super(UpSample1D, self).__init__()
+        self.input = T.tensor4()
+        self.size = size
+
+    def get_output(self, train):
+        X = self.get_input(train)
+        Y = theano.tensor.extra_ops.repeat(X, self.size[0], axis=2)
+        output = theano.tensor.extra_ops.repeat(Y, self.size[1], axis=3)
+        return output
+
+    def get_config(self):
+        return {
+            "name": self.__class__.__name__,
+            "size": self.size
+        }
+
+
+class ZeroPadding2D(Layer):
+    def __init__(self, pad=(1,1)):
+        super(ZeroPadding2D, self).__init__()
+        self.pad = pad
+        self.input = T.tensor4()
+
+    def get_output(self, train):
+        X = self.get_input(train)
+        pad = self.pad
+        in_shape = X.shape
+        out_shape = (in_shape[0], in_shape[1], in_shape[2]+2*pad[0], in_shape[3]+2*pad[1])
+        out = T.zeros(out_shape)
+        indices = (slice(None), slice(None), slice(pad[0], in_shape[2]+pad[0]), slice(pad[1], in_shape[3]+pad[1]))
+        return T.set_subtensor(out[indices], X)
+
+    def get_config(self):
+        return {
+            "name": self.__class__.__name__
+            "size": self.pad
+        }
 
     
+
 
