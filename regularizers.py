@@ -56,7 +56,7 @@ class ActivityRegularizer(Regularizer):
 
 
     def get_config(self):
-        returnl{
+        return{
             "name": self.__class__.__name__,
             "l1": self.l1,
             "l2": self.l2
