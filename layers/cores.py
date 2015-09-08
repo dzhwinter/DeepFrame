@@ -517,3 +517,27 @@ class MaxoutDense(Layer):
         }
 
 
+class Dropout(MaskedLayer):
+    def __init__(self, p):
+        super(Dropout, self).__init__()
+        self.p = p
+        self.srng = RandomStreams(seed=np.random.randint(10e6))
+
+    def get_output(self, train=False):
+        X = self.get_input(train)
+        if self.p > 0.:
+            retran_prob = 1. - self.p
+            if train:
+                X *= self.srng.binomial(X.shape, p=retain_prob, dtype=theano.config.floatX)
+            else:
+                X *= retain_prob
+        return X
+
+    def get_config(self):
+        return {
+            "name": self.__class__.__name__,
+            "p": self.p
+        }
+
+    
+
