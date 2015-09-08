@@ -82,7 +82,8 @@ class DrawActivations(Callback):
         layers_0_ids = np.random.choice(32, 16, replace=False)
         self.test_layer0 = theano.function([self.model.get_input()], self.mode.layer[1].get_output(train=False)[0, layers_0_ids])
 
-        '''
-        TODO: give new time sequence
-        do it this evening
-        '''
+        layers_1_ids = np.random.choice(64, 36, replace=False)
+        # self.test_layer1 = theano.function([self.model.get_input()], self.model.layers[])
+        # TODO: add check
+        #
+
