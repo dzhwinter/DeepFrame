@@ -4,7 +4,7 @@ import numpy as np
 from numpy.testing import assert_allclose
 import theano
 
-from mykeras.layers import cores
+from DeepFrame.layers import cores
 
 
 class TestLayerBase(unittest.TestCase):

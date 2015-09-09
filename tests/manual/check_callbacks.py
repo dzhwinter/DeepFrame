@@ -3,14 +3,14 @@ import random
 import theano
 
 from keras.datasets import mnist
-from mykeras.callbacks import Callback
-from mykeras.utils import generic_utils
-from mykeras.utils import np_utils
-from mykeras.models import Sequential
-from mykeras.layers.convolution import Convolution2D, MaxPooling2D
-from mykeras.layers.cores import Dense, Activation, Flatten, Dropout
-from mykeras.regularizers import l2
-import mykeras.callbacks as cbks
+from DeepFrame.callbacks import Callback
+from DeepFrame.utils import generic_utils
+from DeepFrame.utils import np_utils
+from DeepFrame.models import Sequential
+from DeepFrame.layers.convolution import Convolution2D, MaxPooling2D
+from DeepFrame.layers.cores import Dense, Activation, Flatten, Dropout
+from DeepFrame.regularizers import l2
+import DeepFrame.callbacks as cbks
 
 from matplotlib import pyplot as plt
 from matplotlib import animation
