@@ -7,12 +7,12 @@ These DeepFramework include:
 
 TODO 
 
-- Caffe famous and have a lot users
+- Caffe is famous deeplearning and have a lot users
 - Caffe2  yangqing improve his caffe.
-- keras  python abstract based on Theano tensor and API. it is the most easiset to modify
-- torch just want to review lua script. I love lua
+- lasso and pylearn2  python abstract. it is the most easiset to modify
+- torch  just want to review lua script. do not want to add torch nnnet into DeepFrame, just I like lua
 - mxnnet cxxnet and minerva combination, need to explore
 
-## keras
-some tips from keras.
+## Lasso and pylearn2
+some tips from their jobs.
 
