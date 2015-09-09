@@ -30,5 +30,5 @@ def one_hot(text, n, filters=base_filter(), lower=True, split=" "):
     return [(abs(hash(w)) % (n-1)+1) for w in seq]
 
 class Tokenizer(object):
-    NotImplemented
+    # def __init__(self, nb_words=None, nb )
 
