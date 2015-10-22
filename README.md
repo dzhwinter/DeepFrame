@@ -16,3 +16,10 @@ TODO
 ## Lasso and pylearn2
 some tips from their jobs.
 
+learning the mxnet design engine.
+*  translate the *(a1, a2) into __func(op, arg1, arg2)__, then schedule DAG.
+*  async operation abstract as three types:
+   * wait
+   * waitALL()
+   * send()
+
