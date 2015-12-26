@@ -16,10 +16,13 @@ TODO
 ## Lasso and pylearn2
 some tips from their jobs.
 
-learning the mxnet design engine.
-*  translate the *(a1, a2) into __func(op, arg1, arg2)__, then schedule DAG.
-*  async operation abstract as three types:
-   * wait
-   * waitALL()
-   * send()
+Google similar framework tensorFLow has been opened source two weeks ago. TensorFlow is a DeepLearning&MacnineLearning Framework build on abstract of Big Operation, small Operation, its programming model is similar with Caffe2(Thanks YangQing's Guide opensource framework) and Mxnet(Big Operation too)  which is similar to, DeepFrame would corrdinate with the big brother tensorflow.
 
+What is an Big Operation?
+In my Opinion, 
+
+learning the mxnet design engine.
+mxnet support 
+
+I think good allocator will make contribute to tensorFLow.
+take a look at leveldb memory model, mxnet model.

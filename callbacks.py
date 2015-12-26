@@ -6,6 +6,17 @@ import time, json, warnings
 from collections import deque
 from .utils.generic_utils import Progbar
 
+class Callback(object):
+    def __init__(self, callbacks=[]):
+        self.callbacks = [c for c in callbacks]
+
+    def push_back(self, callback):
+        self.callbacks.append(callback)
+
+    def begin_epoch(self, epoch, logs={}):
+        for callback in self.callbacks:
+            callback.begin_epoch()
+
 
 class CallbackList(object):
     def __init__(self, callbacks=[], queue_length=10):
