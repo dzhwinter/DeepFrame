@@ -8,6 +8,8 @@ from ..utils.theano_utils import shared_scalar, shared_zeros, alloc_zeros_matrix
 from ..layers.cores import Layer, MaskedLayer
 from six.moves import range
 
+# TODO: add GRU and LSTM core for sequence learning
+
 
 class Recurrent(MaskedLayer):
     def get_output_mask(self, train=None):
@@ -59,3 +61,60 @@ class SimpleRNN(Recurrent):
     #     padded_mask = self.get_padded_shuffled_mask(train, X, pad = 1)
 
     #   TODO: LSTM, GRU
+
+class LSTM(Recurrent):
+    def __init__(self, input_dim, output_dim, init='glorot_uniform', inner_init='orthogonal',
+                 activation='sigmoid', weights=None, trucate_gradient=-1, return_sequences=False):
+        super(LSTM, self).__init__()
+        self.init = initializations.get(init)
+        self.input_dim = input_dim
+        self.output_dim = output_dim
+        self.activation = activations.get(activation)
+        self.return_sequences = return_sequences
+
+        
+        self.W = self.init((self.input_dim, self.output_dim))
+        self.U = self.inner_init((self.output_dim, self.output_dim))
+        self.b = shared_zeros((self.output_dim))
+        self.params = [self.W, self.U, self.b]
+
+        if weights is not None:
+            self.set_weights(weights):
+
+    def _set_weights(self, W) :
+
+
+    def get_config(self):
+        return {
+            "name": self.__class__.__name__,
+
+        }
+
+
+class GRU(Recurrent):
+    def __init__(self, input_dim, output_dim, init='glorot_uniform', inner_init='orthogonal',
+                 activation='sigmoid', weights=None, trucate_gradient=-1, return_sequences=False):
+        super(GRU, self).__init__()
+        self.init = initializations.get(init)
+        self.input_dim = input_dim
+        self.output_dim = output_dim
+        self.activation = activations.get(activation)
+        self.return_sequences = return_sequences
+
+        
+        self.W = self.init((self.input_dim, self.output_dim))
+        self.U = self.inner_init((self.output_dim, self.output_dim))
+        self.b = shared_zeros((self.output_dim))
+        self.params = [self.W, self.U, self.b]
+
+        if weights is not None:
+            self.set_weights(weights):
+
+    def _set_weights(self, W) :
+
+
+    def get_config(self):
+        return {
+            "name": self.__class__.__name__,
+
+        }

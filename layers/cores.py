@@ -89,9 +89,7 @@ class Layer(object):
         else:
             regularizers = []
 
-        if hasattr(
-                self,
-                'constraints') and len(self.constraints) == len(self.params):
+        if hasattr(self, 'constraints') and len(self.constraints) == len(self.params):
             for c in self.constraints:
                 if c:
                     consts.append(c)
