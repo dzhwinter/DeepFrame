@@ -1,6 +1,6 @@
-from __future__ import absolute_import
-from __future__ import print_function
-
+#coding:utf8
+import sys, theano
+import theano
 import numpy as np
 import time, json, warnings
 from collections import deque
