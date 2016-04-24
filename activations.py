@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+import mxnet as mx
 import theano.tensor as T
 
 
@@ -15,6 +16,11 @@ def time_distribute_softmax(x):
 def softplux(x):
     return T.nnet.softplut(x)
 
+def prelu(x):
+    if(x>0):
+        return (x+abs(x))/2.0
+    else:
+        return -0.2
 
 def relu(x):
     return (x+abs(x))/2.0

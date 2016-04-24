@@ -4,7 +4,6 @@ import theano
 import numpy as np
 import time, json, warnings
 from collections import deque
-from .utils.generic_utils import Progbar
 
 class Callback(object):
     def __init__(self, callbacks=[]):
@@ -251,26 +250,4 @@ class RemoteMonitor(Callback):
                 self.totals[k] += v * batch_size
             else:
                 self.totals[k] += v * batch_size
-
-    def on_epoch_end(self, epoch, logs={}):
-        import requests
-        send = {}
-        send['epoch'] = epoch
-
-        for k, v in self.totals.items():
-            send[k] = v/ self.seen
-
-        for k, v in logs.items():
-            send[k] = v
-
-        try:
-            r = requests.post(self.root, '/publish/epoch/end/', {'data': json.dumps(send)})
-        except:
-            print('Warning: could not rewach RemoteMonitor root server at'+ str(self.root))
-
-
-
-
-    
-
 
