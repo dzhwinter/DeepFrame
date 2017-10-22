@@ -6,6 +6,7 @@ At the end of 2015, google has open source the famous TensorFlow, our members al
 
 ## Citation
 If you find this code useful for your research, please cite:
+```latex
 @inproceedings{dong2016multi,
   title={Multi-stream Deep Networks for Person to Person Violence Detection in Videos},
   author={Dong, Zhihong and Qin, Jie and Wang, Yunhong},
@@ -14,3 +15,4 @@ If you find this code useful for your research, please cite:
   year={2016},
   organization={Springer}
 }
+```
